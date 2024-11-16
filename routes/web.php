@@ -13,5 +13,3 @@ Route::get('/', function () {
 });
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
-
-require __DIR__.'/auth.php';
