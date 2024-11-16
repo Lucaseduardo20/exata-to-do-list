@@ -55,10 +55,10 @@ class User extends Authenticatable
     {
         if (!Auth::attempt($credentials->toArray())) {
             return back()->withErrors([
-                'email' => 'Credenciais inválidas.'
+                'others' => 'Credenciais inválidas.'
             ]);
         }
-        return Inertia::render('Home', [
+        return Inertia::render('Login', [
             'user' => $this
         ]);
     }

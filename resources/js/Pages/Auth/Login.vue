@@ -13,8 +13,19 @@ const handleLogin = async () => {
         password: password.value,
     }, {
         onError: (err) => {
-            if (err.email) errors.value.push(err.email);
-            if (err.password) errors.value.push(err.password);
+            const errorHandlers = {
+                email: (message: string) => errors.value.push(message),
+                password: (message: string) => errors.value.push(message),
+                others: (message: string) => errors.value.push(message),
+            };
+
+            Object.entries(err).forEach(([key, message]) => {
+                if (errorHandlers[key as keyof typeof errorHandlers]) {
+                    errorHandlers[key as keyof typeof errorHandlers](message as string);
+                } else {
+                    errors.value.push('Erro desconhecido.');
+                }
+            });
         },
     });
 };
