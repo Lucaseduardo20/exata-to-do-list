@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\AuthController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -12,4 +13,4 @@ Route::get('/', function () {
     return Inertia::render('Auth/Login');
 });
 
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'store'])->name('login');

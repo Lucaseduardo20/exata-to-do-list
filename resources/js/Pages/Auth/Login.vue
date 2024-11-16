@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
-
-const email = ref<string>('');
-const password = ref<string>('');
+const email = ref('');
+const password = ref('');
 const errors = ref<string[]>([]);
 
 const handleLogin = async () => {
@@ -14,8 +13,8 @@ const handleLogin = async () => {
         password: password.value,
     }, {
         onError: (err) => {
-            if (err.email) errors.value.push(err.email[0]);
-            if (err.password) errors.value.push(err.password[0]);
+            if (err.email) errors.value.push(err.email);
+            if (err.password) errors.value.push(err.password);
         },
     });
 };

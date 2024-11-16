@@ -3,9 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Data\LoginData;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class User extends Authenticatable
 {
@@ -44,5 +49,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function login (LoginData $credentials)
+    {
+        if (!Auth::attempt($credentials->toArray())) {
+            return back()->withErrors([
+                'email' => 'Credenciais inválidas.'
+            ]);
+        }
+        return Inertia::render('Home', [
+            'user' => $this
+        ]);
     }
 }
