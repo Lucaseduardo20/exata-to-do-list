@@ -56,7 +56,7 @@ class User extends Authenticatable
         if (!Auth::attempt($credentials->toArray())) {
             return back()->withErrors([
                 'others' => 'Credenciais inválidas.'
-            ]);
+            ])->setStatusCode(403);
         }
         return Inertia::render('Login', [
             'user' => $this
