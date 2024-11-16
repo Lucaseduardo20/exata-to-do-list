@@ -1,16 +1,17 @@
 <?php
 
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    if (Auth::check()) {
+        return redirect('/home');
+    }
+
+    return Inertia::render('Auth/Login');
 });
+
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 require __DIR__.'/auth.php';
