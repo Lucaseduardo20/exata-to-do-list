@@ -63,9 +63,7 @@ class User extends Authenticatable
                 'others' => 'Credenciais inválidas.'
             ])->setStatusCode(403);
         }
-        return Inertia::render('Login', [
-            'user' => $this
-        ]);
+        return redirect()->route('home');
     }
 
     public function register(RegisterData $data): Response
