@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 const email = ref('');
 const password = ref('');
 const errors = ref<string[]>([]);
+
+const { props } = usePage();
+const successMessage = props.message;
 
 const handleLogin = async () => {
     errors.value = [];
@@ -40,6 +43,10 @@ const goToRegister = () => {
         <section class="bg-white p-8 rounded-md shadow-md w-full max-w-md">
             <h1 class="text-2xl font-bold text-center mb-4 text-gray-800">Bem-vindo!</h1>
             <p class="text-center text-gray-600 mb-6">Faça login para acessar sua conta</p>
+
+            <div v-if="successMessage" class="bg-green-100 text-green-700 p-3 rounded mb-4">
+                {{ successMessage }}
+            </div>
 
             <form @submit.prevent="handleLogin" class="space-y-4">
                 <ul v-if="errors.length" class="bg-red-100 text-red-700 p-3 rounded">
