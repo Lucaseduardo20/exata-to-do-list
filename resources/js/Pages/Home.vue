@@ -57,7 +57,7 @@ function setActiveTab(tab) {
             </footer>
         </aside>
 
-        <main class="flex-grow bg-[#f9dfb8] p-6">
+        <main class="flex-grow bg-[#f9dfb8] p-6 flex justify-center items-center">
             <profile-tab v-if="activeTab === 'profile'" class="animate-fade-in"></profile-tab>
             <tasks-tab v-if="activeTab === 'tasks'" class="animate-fade-in"></tasks-tab>
 
