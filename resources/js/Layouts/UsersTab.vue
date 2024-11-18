@@ -2,29 +2,25 @@
 import { ref, computed } from "vue";
 import {router} from "@inertiajs/vue3";
 
-// Mock inicial de usuários
 const users = ref([
     { id: 1, name: "João Silva", email: "joao@empresa.com", status: "Ativo" },
     { id: 2, name: "Maria Souza", email: "maria@empresa.com", status: "Inativo" },
     { id: 3, name: "Carlos Almeida", email: "carlos@empresa.com", status: "Ativo" },
 ]);
 
-// Mock inicial de tarefas (apenas para visualização)
 const tasks = ref([
     { id: 1, userId: 1, title: "Estudar Vue.js", status: "Pendente" },
     { id: 2, userId: 2, title: "Criar backend", status: "Concluída" },
     { id: 3, userId: 1, title: "Ajustar front-end", status: "Pendente" },
 ]);
 
-// Variáveis de controle
 const showModal = ref(false);
 const showTaskModal = ref(false);
 const currentUser = ref(null);
 const filter = ref({ name: "", email: "", status: "" });
-const sortKey = ref("name"); // Chave de ordenação padrão
-const sortOrder = ref("asc"); // Ordem padrão (crescente)
+const sortKey = ref("name");
+const sortOrder = ref("asc");
 
-// Funções de controle
 const openModal = () => {
     currentUser.value = { id: null, name: "", email: "", status: "Ativo" };
     showModal.value = true;
@@ -37,7 +33,6 @@ const closeModal = () => {
 const saveUser = () => {
     if (currentUser.value.name.trim() && currentUser.value.email.trim()) {
         if (currentUser.value.id) {
-            // Aqui você faria uma requisição ao backend para atualizar o usuário
             router.put(`/users/${currentUser.value.id}`, currentUser.value, {
                 onSuccess: () => {
                     const index = users.value.findIndex((user) => user.id === currentUser.value.id);
@@ -46,7 +41,6 @@ const saveUser = () => {
                 },
             });
         } else {
-            // Aqui você faria uma requisição ao backend para criar um novo usuário
             router.post("/users", currentUser.value, {
                 onSuccess: () => {
                     users.value.push({ ...currentUser.value, id: users.value.length + 1 });
@@ -72,12 +66,10 @@ const toggleStatus = (user) => {
 };
 
 const viewTasks = (user) => {
-    // Filtra as tarefas associadas ao usuário
     const userTasks = tasks.value.filter((task) => task.userId === user.id);
     alert(`Tarefas de ${user.name}: \n${userTasks.map((task) => task.title).join("\n")}`);
 };
 
-// Filtragem e Ordenação
 const filteredUsers = computed(() => {
     return users.value
         .filter((user) => {
