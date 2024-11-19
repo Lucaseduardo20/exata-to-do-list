@@ -114,4 +114,16 @@ class AuthTest extends TestCase
 
         $response->assertJsonValidationErrors(['email']);
     }
+
+    public function test_user_can_logout_successfully()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->post(route('logout'));
+
+        $response->assertRedirect(route('auth'));
+
+        $this->assertGuest();
+    }
 }
