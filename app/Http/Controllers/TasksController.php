@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Services\TaskService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class TasksController extends Controller
 {
@@ -11,8 +13,17 @@ class TasksController extends Controller
     {
     }
 
-    public function show(Request $request)
+    public function show(Request $request): Collection
     {
         return $this->service->list($request->user_id);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $this->service->create($request->all());
+
+        return response()->json([
+            'message' => 'Task criada com sucesso!',
+        ], 201);
     }
 }

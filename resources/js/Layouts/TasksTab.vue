@@ -2,7 +2,7 @@
 import { ref, computed, defineProps, onMounted } from "vue";
 import {router, usePage} from "@inertiajs/vue3";
 import {Tasks} from "../types/tasks";
-import {getTasks} from "../../services/tasks";
+import {getTasks, createTaskService} from "../../services/tasks";
 
 const props = defineProps({
     tasks: {
@@ -32,15 +32,13 @@ const closeModal = () => {
     showModal.value = false;
 };
 
-const saveTask = () => {
-    if (newTask.value.title.trim() && newTask.value.description.trim()) {
-        router.post("/tasks", newTask.value, {
-            onSuccess: () => {
-                tasks.value.push({ ...newTask.value, id: tasks.value.length + 1 });
-                closeModal();
-            },
-        });
+const saveTask = async () => {
+    if (!newTask.value.title.trim() || !newTask.value.description.trim()) {
+        return alert('Preencha os campos corretamente!')
     }
+
+    const response = await createTaskService({title: newTask.value.title, description: newTask.value.description})
+    console.log(response);
 };
 
 const editTask = (task) => {
@@ -214,6 +212,7 @@ const filteredTasks = computed(() => {
                             Cancelar
                         </button>
                         <button
+                            @click="saveTask"
                             type="submit"
                             class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-colors"
                         >
