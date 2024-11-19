@@ -39,58 +39,58 @@ const goToRegister = () => {
 </script>
 
 <template>
-    <main class="w-full h-[100vh] flex items-center justify-center bg-gray-100">
+    <main class="w-full h-[100vh] flex items-center justify-center bg-[#2f2c2c]">
         <section class="bg-white p-8 rounded-md shadow-md w-full max-w-md">
-            <h1 class="text-2xl font-bold text-center mb-4 text-gray-800">Bem-vindo!</h1>
-            <p class="text-center text-gray-600 mb-6">Faça login para acessar sua conta</p>
+            <h1 class="text-2xl font-bold text-center mb-4 text-[#2f2c2c]">Bem-vindo!</h1>
+            <p class="text-center text-[#2f2c2c] mb-6">Faça login para acessar sua conta</p>
 
-            <div v-if="successMessage" class="bg-green-100 text-green-700 p-3 rounded mb-4">
+            <div v-if="successMessage" class="bg-[#f9a01b] text-white p-3 rounded mb-4">
                 {{ successMessage }}
             </div>
 
             <form @submit.prevent="handleLogin" class="space-y-4">
-                <ul v-if="errors.length" class="bg-red-100 text-red-700 p-3 rounded">
+                <ul v-if="errors.length" class="bg-[#f9a01b] text-white p-3 rounded">
                     <li v-for="error in errors" :key="error">{{ error }}</li>
                 </ul>
 
                 <div>
-                    <label for="email" class="block text-gray-700 mb-1">E-mail</label>
+                    <label for="email" class="block text-[#2f2c2c] mb-1">E-mail</label>
                     <input
                         id="email"
                         type="email"
                         v-model="email"
                         placeholder="Digite seu e-mail"
-                        class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-4 py-2 border border-[#2f2c2c] rounded focus:outline-none focus:ring-2 focus:ring-[#f9a01b]"
                         required
                     />
                 </div>
 
                 <div>
-                    <label for="password" class="block text-gray-700 mb-1">Senha</label>
+                    <label for="password" class="block text-[#2f2c2c] mb-1">Senha</label>
                     <input
                         id="password"
                         type="password"
                         v-model="password"
                         placeholder="Digite sua senha"
-                        class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-4 py-2 border border-[#2f2c2c] rounded focus:outline-none focus:ring-2 focus:ring-[#f9a01b]"
                         required
                     />
                 </div>
 
                 <button
                     type="submit"
-                    class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+                    class="w-full bg-[#2f2c2c] text-white py-2 px-4 rounded hover:bg-[#f9a01b] transition"
                 >
                     Entrar
                 </button>
             </form>
 
             <div class="mt-4 text-center">
-                <p class="text-gray-600">
+                <p class="text-[#2f2c2c]">
                     Não tem uma conta?
                     <button
                         @click="goToRegister"
-                        class="text-blue-500 hover:underline"
+                        class="text-[#f9a01b] hover:underline"
                     >
                         Registre-se
                     </button>
@@ -101,4 +101,8 @@ const goToRegister = () => {
 </template>
 
 <style scoped>
+/* Custom transitions */
+button {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
 </style>
