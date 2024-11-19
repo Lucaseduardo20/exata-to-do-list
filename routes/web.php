@@ -19,6 +19,8 @@ Route::get('/register', function () {
 Route::get('/home', function () {
     return Inertia::render('Home');
 });
+
+
 Route::prefix('user')->group(function () {
     Route::post('/login', [AuthController::class, 'store'])->name('login');
     Route::post('/register', [AuthController::class, 'index'])->name('register');
