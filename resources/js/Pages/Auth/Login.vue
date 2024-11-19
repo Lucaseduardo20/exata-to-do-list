@@ -11,7 +11,7 @@ const successMessage = props.message;
 const handleLogin = async () => {
     errors.value = [];
 
-    await router.post('/login', {
+    await router.post('/user/login', {
         email: email.value,
         password: password.value,
     }, {

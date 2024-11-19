@@ -9,7 +9,7 @@ function handleEditProfile() {
 }
 
 function handleLogout() {
-    router.post('/logout');
+    router.post('/user/logout');
 }
 </script>
 
