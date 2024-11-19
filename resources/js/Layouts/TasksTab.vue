@@ -1,12 +1,16 @@
-<script setup>
-import { ref, computed } from "vue";
-import {router} from "@inertiajs/vue3";
+<script setup lang="ts">
+import { ref, computed, defineProps, onMounted } from "vue";
+import {router, usePage} from "@inertiajs/vue3";
+import {Tasks} from "../types/tasks";
+import {getTasks} from "../../services/tasks";
 
-const tasks = ref([
-    { id: 1, title: "Estudar Vue.js", description: "Aprender Composition API", status: "Pendente" },
-    { id: 2, title: "Criar backend", description: "Configurar API Laravel", status: "Concluída" },
-    { id: 3, title: "Ajustar front-end", description: "Fazer a responsividade do layout", status: "Pendente" },
-]);
+const props = defineProps({
+    tasks: {
+        type: Array<Tasks>
+    }
+})
+
+const tasks = ref([]);
 
 const showModal = ref(false);
 const newTask = ref({ title: "", description: "", status: "Pendente" });
@@ -18,6 +22,11 @@ const openModal = () => {
     newTask.value = { title: "", description: "", status: "Pendente" };
     showModal.value = true;
 };
+
+onMounted(async () => {
+    const response = await getTasks(usePage().props.auth.user.id)
+    tasks.value = response.data
+})
 
 const closeModal = () => {
     showModal.value = false;
@@ -78,7 +87,7 @@ const filteredTasks = computed(() => {
 </script>
 
 <template>
-    <section class="p-6">
+    <section class="p-6 max-h-[90%]">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-[#2f2c2c]">Gerenciador de Tarefas</h1>
             <button
@@ -102,64 +111,75 @@ const filteredTasks = computed(() => {
                 placeholder="Filtrar por descrição"
                 class="w-full p-3 border border-[#697076] rounded-lg"
             />
-            <input
+            <select
                 v-model="filter.status"
-                type="text"
-                placeholder="Filtrar por status"
                 class="w-full p-3 border border-[#697076] rounded-lg"
-            />
+            >
+                <option value="">Filtrar por status</option>
+                <option value="done">Em Andamento</option>
+                <option value="in-progress">Concluída</option>
+                <option value="pending">Pendente</option>
+            </select>
         </div>
 
-        <table class="w-full text-left border-collapse border border-[#697076]">
-            <thead class="bg-[#2f2c2c] text-white">
-            <tr>
-                <th @click="sortKey = 'title'; sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="p-4 cursor-pointer border border-[#697076]">
-                    Título
-                    <span v-if="sortKey === 'title'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-                </th>
-                <th @click="sortKey = 'description'; sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="p-4 cursor-pointer border border-[#697076]">
-                    Descrição
-                    <span v-if="sortKey === 'description'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-                </th>
-                <th @click="sortKey = 'status'; sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="p-4 cursor-pointer border border-[#697076]">
-                    Status
-                    <span v-if="sortKey === 'status'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
-                </th>
-                <th class="p-4 border border-[#697076] text-center">Ações</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr
-                v-for="task in filteredTasks"
-                :key="task.id"
-                class="odd:bg-[#f9a01b] even:bg-[#fff] hover:bg-[#ffd89e] transition-colors"
-            >
-                <td class="p-4 border border-[#697076]">{{ task.title }}</td>
-                <td class="p-4 border border-[#697076]">{{ task.description }}</td>
-                <td class="p-4 border border-[#697076]">{{ task.status }}</td>
-                <td class="p-4 border border-[#697076] text-center">
-                    <button
-                        @click="editTask(task)"
-                        class="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-800 transition-colors mr-2"
-                    >
-                        Editar
-                    </button>
-                    <button
-                        @click="toggleStatus(task)"
-                        class="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 transition-colors mr-2"
-                    >
-                        {{ task.status === "Pendente" ? "Concluir" : "Reabrir" }}
-                    </button>
-                    <button
-                        @click="deleteTask(task.id)"
-                        class="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-800 transition-colors"
-                    >
-                        Remover
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="overflow-y-auto max-h-[700px]">
+
+            <table class="w-full text-left border-collapse border border-[#697076] max-w-6xl max-h-[90%] overflow-auto">
+                <thead class="bg-[#2f2c2c] text-white">
+                <tr>
+                    <th @click="sortKey = 'title'; sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="p-4 cursor-pointer border border-[#697076]">
+                        Título
+                        <span v-if="sortKey === 'title'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th @click="sortKey = 'description'; sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="p-4 cursor-pointer border border-[#697076]">
+                        Descrição
+                        <span v-if="sortKey === 'description'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th @click="sortKey = 'status'; sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="p-4 cursor-pointer border border-[#697076]">
+                        Status
+                        <span v-if="sortKey === 'status'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
+                    <th class="p-4 border border-[#697076] text-center">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-if="tasks.length === 0" class="bg-[#f9a01b] ">
+                    <td colspan="6" align="center">
+                        Carregando...
+                    </td>
+                </tr>
+                <tr
+                    v-for="task in filteredTasks"
+                    :key="task.id"
+                    class="odd:bg-[#f9a01b] even:bg-[#fff] hover:bg-[#ffd89e] transition-colors"
+                >
+                    <td class="p-4 border border-[#697076]">{{ task.title }}</td>
+                    <td class="p-4 border border-[#697076]">{{ task.description }}</td>
+                    <td class="p-4 border border-[#697076]">{{ task.status }}</td>
+                    <td class="p-4 border border-[#697076] text-center">
+                        <button
+                            @click="editTask(task)"
+                            class="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-800 transition-colors mr-2"
+                        >
+                            Editar
+                        </button>
+                        <button
+                            @click="toggleStatus(task)"
+                            class="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 transition-colors mr-2"
+                        >
+                            {{ task.status === "Pendente" ? "Concluir" : "Reabrir" }}
+                        </button>
+                        <button
+                            @click="deleteTask(task.id)"
+                            class="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-800 transition-colors"
+                        >
+                            Remover
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
         <div
             v-if="showModal"
