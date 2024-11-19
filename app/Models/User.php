@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class User extends Authenticatable
 {
@@ -56,14 +57,22 @@ class User extends Authenticatable
         ];
     }
 
+    public function FRole(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->role === 'user' ? 'Usuário' : 'Admin'
+        );
+    }
+
+
     public function login (LoginData $credentials): Response | RedirectResponse
     {
         if (!Auth::attempt($credentials->toArray())) {
-            return back()->withErrors([
+            return redirect('/')->withErrors([
                 'others' => 'Credenciais inválidas.'
             ])->setStatusCode(403);
         }
-        return redirect()->route('home');
+        return Inertia::render('Home');
     }
 
     public function register(RegisterData $data): Response
@@ -78,4 +87,14 @@ class User extends Authenticatable
             'message' => 'Usuário criado com sucesso!'
         ]);
     }
+
+    public function logout(): Response | RedirectResponse
+    {
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect('/');
+    }
+
 }

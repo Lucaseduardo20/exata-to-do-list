@@ -17,6 +17,7 @@ class ShareAuthenticatedUser
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
                     'role' => $request->user()->role,
+                    'f_role' => $request->user()->f_role
                 ]
                 : null;
         });

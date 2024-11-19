@@ -1,5 +1,6 @@
 <script setup>
 import { usePage } from "@inertiajs/vue3";
+import {router} from "@inertiajs/vue3";
 
 const user = usePage().props.auth.user;
 
@@ -8,7 +9,7 @@ function handleEditProfile() {
 }
 
 function handleLogout() {
-    // @todo
+    router.post('/logout');
 }
 </script>
 
@@ -21,11 +22,11 @@ function handleLogout() {
 
         <div class="user-info mb-4">
             <p class="text-lg text-white"><strong>E-mail:</strong> {{ user.email }}</p>
-            <p class="text-lg text-white"><strong>Função:</strong> {{ user.role }}</p>
+            <p class="text-lg text-white"><strong>Função:</strong> {{ user.f_role }}</p>
         </div>
 
         <footer class="actions flex gap-4">
-            <button
+            <button v-if="user.role === 'admin'"
                 @click="handleEditProfile"
                 class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >

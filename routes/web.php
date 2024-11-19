@@ -11,7 +11,7 @@ Route::get('/', function () {
     }
 
     return Inertia::render('Auth/Login');
-});
+})->name('auth');
 Route::get('/register', function () {
     return Inertia::render('Auth/Register');
 });
@@ -22,3 +22,4 @@ Route::get('/home', function () {
 
 Route::post('/login', [AuthController::class, 'store'])->name('login');
 Route::post('/register', [AuthController::class, 'index'])->name('register');
+Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
