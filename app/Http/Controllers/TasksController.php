@@ -13,9 +13,13 @@ class TasksController extends Controller
     {
     }
 
-    public function show(Request $request): Collection
+    public function show(Request $request): JsonResponse
     {
-        return $this->service->list($request->user_id);
+        $tasks = $this->service->list($request->user_id);
+
+        return response()->json([
+            'tasks' => $tasks,
+        ], 200);
     }
 
     public function store(Request $request): JsonResponse

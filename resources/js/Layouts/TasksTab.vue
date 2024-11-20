@@ -27,7 +27,7 @@ const openModal = () => {
 
 onMounted(async () => {
     const response = await getTasks(usePage().props.auth.user.id)
-    tasks.value = response.data
+    tasks.value = response.data.tasks
 })
 
 const closeModal = () => {
@@ -44,7 +44,7 @@ const createTask = async () => {
     await createTaskService({title: newTask.value.title, description: newTask.value.description}).then((res) => {
         closeModal();
     })
-    tasks.value = (await getTasks(usePage().props.auth.user.id)).data
+    tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
 };
 
 const updateTask = async () => {
@@ -54,7 +54,7 @@ const updateTask = async () => {
     await editTaskService({id: editingTask.value.id, title: editingTask.value.title, description:editingTask.value.description}).then((res) => {
         closeModal();
     })
-    tasks.value = (await getTasks(usePage().props.auth.user.id)).data
+    tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
 }
 
 const submitModal = async () => {
