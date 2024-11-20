@@ -5,6 +5,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
 use App\Models\Task;
 use App\Enums\TaskStatusEnum;
+use App\Enums\RoleEnum;
 
 class TasksTest extends TestCase
 {
@@ -18,6 +19,7 @@ class TasksTest extends TestCase
 
         $this->user = User::factory()->create([
             'email' => 'test@example.com',
+            'role' => RoleEnum::USER->value
         ]);
 
         $this->actingAs($this->user);

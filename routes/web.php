@@ -39,8 +39,8 @@ Route::prefix('tasks')->middleware('auth')->group(function () {
 });
 
 Route::prefix('admin')->group(function () {
-    Route::get('/tasks', [AdminController::class, 'listTasks'])->name('list');
-    Route::get('/users', [AdminController::class, 'listUsers'])->name('list');
+    Route::get('/tasks', [AdminController::class, 'listTasks'])->name('list-tasks');
+    Route::get('/users', [AdminController::class, 'listUsers'])->name('list-users');
     Route::post('/update_user', [AdminController::class, 'updateUser'])->name('update-user');
     Route::post('/delete_user', [AdminController::class, 'deleteUser'])->name('delete-user');
     Route::post('/promote_user', [AdminController::class, 'promoteUser'])->name('promote-user');
