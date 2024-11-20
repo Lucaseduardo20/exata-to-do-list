@@ -55,6 +55,6 @@ class TasksController extends Controller
 
         return response()->json([
             'message' => 'Tarefa deletada com sucesso!',
-        ], 201);
+        ], 200);
     }
 }

@@ -87,4 +87,21 @@ class TasksTest extends TestCase
             'status' => TaskStatusEnum::DONE
         ]);
     }
+
+    public function test_delete_tasks(): void
+    {
+        $task = Task::factory()->for($this->user)->create();
+
+        $response = $this->post('/tasks/delete', [
+            'id' => $task->id
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'message' => 'Tarefa deletada com sucesso!',
+        ]);
+        $this->assertDatabaseMissing('tasks', [
+            'id' => $task->id,
+        ]);
+    }
 }
