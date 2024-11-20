@@ -25,3 +25,9 @@ export const doneTaskService = async (id: number) => {
         id: id,
     }))
 }
+
+export const deleteTaskService = async (id: number) => {
+    return (await axios.post(`${url}tasks/delete`, {
+        id: id,
+    }))
+}

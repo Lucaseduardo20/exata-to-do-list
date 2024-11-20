@@ -46,4 +46,10 @@ class TaskService
 
         return TaskData::toRequest($task);
     }
+
+    public function deleteTask(int $task_id): void
+    {
+        $task = Task::find($task_id);
+        $task->delete();
+    }
 }

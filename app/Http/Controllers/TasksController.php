@@ -48,4 +48,13 @@ class TasksController extends Controller
             'message' => 'Tarefa concluída com sucesso!',
         ], 201);
     }
+
+    public function deleteTask(Request $request): JsonResponse
+    {
+        $this->service->deleteTask($request->get('id'));
+
+        return response()->json([
+            'message' => 'Tarefa deletada com sucesso!',
+        ], 201);
+    }
 }

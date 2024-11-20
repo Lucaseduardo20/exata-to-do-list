@@ -2,7 +2,7 @@
 import { ref, computed, defineProps, onMounted } from "vue";
 import {router, usePage} from "@inertiajs/vue3";
 import {Tasks} from "../types/tasks";
-import {getTasks, createTaskService, editTaskService, doneTaskService} from "../../services/tasks";
+import {getTasks, createTaskService, editTaskService, doneTaskService, deleteTaskService} from "../../services/tasks";
 
 const props = defineProps({
     tasks: {
@@ -43,6 +43,7 @@ const createTask = async () => {
     }
     await createTaskService({title: newTask.value.title, description: newTask.value.description}).then((res) => {
         closeModal();
+        alert(res.data.message)
     })
     tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
 };
@@ -53,6 +54,7 @@ const updateTask = async () => {
     }
     await editTaskService({id: editingTask.value.id, title: editingTask.value.title, description:editingTask.value.description}).then((res) => {
         closeModal();
+        alert(res.data.message)
     })
     tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
 }
@@ -67,13 +69,12 @@ const edit = (task) => {
     showModal.value = true;
 };
 
-const deleteTask = (id) => {
+const deleteTask = async (id) => {
     if (confirm("Tem certeza que deseja remover esta tarefa?")) {
-        router.delete(`/tasks/${id}`, {
-            onSuccess: () => {
-                tasks.value = tasks.value.filter((task) => task.id !== id);
-            },
-        });
+        await deleteTaskService(id).then((res) => {
+            alert(res.data.message);
+        })
+        tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
     }
 };
 
