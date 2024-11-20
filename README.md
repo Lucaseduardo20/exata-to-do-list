@@ -44,8 +44,8 @@ O projeto está totalmente coberto com **testes unitários e de integração**, 
 
 1. Clone o repositório:
    ```bash
-   git clone <url-do-repositorio>
-   cd <nome-do-projeto>
+   git clone <https://github.com/Lucaseduardo20/exata-to-do-list>
+   cd <exata-to-do-list>
    ```
 
 2. Instale as dependências do Laravel e do Vue:
