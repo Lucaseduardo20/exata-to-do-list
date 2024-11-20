@@ -21,6 +21,8 @@ const filter = ref({ title: "", description: "", status: "" });
 const sortKey = ref("title");
 const sortOrder = ref("asc");
 
+const isAdmin = computed(() => usePage().props.auth?.user?.role === 'admin');
+
 const openModal = () => {
     newTask.value = { title: "", description: "" };
     showModal.value = true;
@@ -39,7 +41,7 @@ const getAdminTask = async () => {
 }
 
 const resolveGetTasks = async () => {
-    if(usePage().props.auth.user.role === 'admin') {
+    if(isAdmin) {
         await getAdminTask()
     } else {
         await getUserTask()
@@ -129,6 +131,7 @@ const filteredTasks = computed(() => {
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-[#2f2c2c]">Gerenciador de Tarefas</h1>
             <button
+                v-if="!isAdmin"
                 @click="openModal"
                 class="bg-[#f9a01b] text-white px-6 py-3 rounded-lg hover:bg-[#e68a00] transition-colors"
             >
@@ -177,10 +180,10 @@ const filteredTasks = computed(() => {
                         Status
                         <span v-if="sortKey === 'status'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
                     </th>
-                    <th v-if="usePage().props.auth.user.role === 'admin'" class="p-4 border border-[#697076] text-center h-auto">
+                    <th v-if="isAdmin" class="p-4 border border-[#697076] text-center h-auto">
                         Usuário
                     </th>
-                    <th v-if="usePage().props.auth.user.role === 'user'" class="p-4 border border-[#697076] text-center h-auto">
+                    <th v-if="!isAdmin" class="p-4 border border-[#697076] text-center h-auto">
                         Ações
                     </th>
                 </tr>
@@ -199,8 +202,8 @@ const filteredTasks = computed(() => {
                     <td class="p-4 border border-[#697076]">{{ task.title }}</td>
                     <td class="p-4 border border-[#697076]">{{ task.description }}</td>
                     <td class="p-4 border border-[#697076]">{{ task.status }}</td>
-                    <td v-if="usePage().props.auth.user.role === 'admin'" class="p-4 border border-[#697076]">{{ task.user_name }}</td>
-                    <td class="p-4 border border-[#697076]" v-if="usePage().props.auth.user.role === 'user'">
+                    <td v-if="isAdmin" class="p-4 border border-[#697076]">{{ task.user_name }}</td>
+                    <td class="p-4 border border-[#697076]" v-if="!isAdmin">
                         <div class="flex items-center h-full">
 
                             <button

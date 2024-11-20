@@ -24,6 +24,12 @@ class TasksController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        if(auth()->user()->role === 'admin') {
+            return response()->json([
+                'message' => 'Usuário administrador não pode criar tarefas!',
+            ], 422);
+        }
+
         $this->service->create($request->all());
 
         return response()->json([
