@@ -44,7 +44,7 @@ O projeto está totalmente coberto com **testes unitários e de integração**, 
 
 1. Clone o repositório:
    ```bash
-   git clone <https://github.com/Lucaseduardo20/exata-to-do-list>
+   git clone <https://github.com/Lucaseduardo20/exata-to-do-list.git>
    cd <exata-to-do-list>
    ```
 
