@@ -39,4 +39,13 @@ class TasksController extends Controller
             'message' => 'Tarefa editada com sucesso!',
         ], 201);
     }
+
+    public function doneTask(Request $request): JsonResponse
+    {
+        $this->service->done($request->get('id'));
+
+        return response()->json([
+            'message' => 'Tarefa concluída com sucesso!',
+        ], 201);
+    }
 }

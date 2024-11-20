@@ -37,4 +37,13 @@ class TaskService
 
         return TaskData::fromTask($task);
     }
+
+    public function done(int $task_id): TaskData
+    {
+        $task = Task::find($task_id);
+        $task->status = TaskStatusEnum::DONE->value;
+        $task->save();
+
+        return TaskData::toRequest($task);
+    }
 }

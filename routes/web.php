@@ -32,4 +32,5 @@ Route::prefix('tasks')->middleware('auth')->group(function () {
     Route::get('{user_id}', [TasksController::class, 'show'])->name('list');
     Route::post('/create', [TasksController::class, 'store'])->name('create');
     Route::put('/update', [TasksController::class, 'update'])->name('update');
+    Route::post('/done', [TasksController::class, 'doneTask'])->name('done');
 });

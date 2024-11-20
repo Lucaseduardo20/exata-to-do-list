@@ -19,3 +19,9 @@ export const editTaskService = async ({id ,title, description}: {id: number, tit
         description: description
     }))
 }
+
+export const doneTaskService = async (id: number) => {
+    return (await axios.post(`${url}tasks/done`, {
+        id: id,
+    }))
+}
