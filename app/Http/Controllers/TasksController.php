@@ -23,7 +23,16 @@ class TasksController extends Controller
         $this->service->create($request->all());
 
         return response()->json([
-            'message' => 'Task criada com sucesso!',
+            'message' => 'Tarefa criada com sucesso!',
+        ], 201);
+    }
+
+    public function update(Request $request): JsonResponse
+    {
+        $this->service->edit($request->all());
+
+        return response()->json([
+            'message' => 'Tarefa editada com sucesso!',
         ], 201);
     }
 }

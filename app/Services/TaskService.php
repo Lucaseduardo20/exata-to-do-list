@@ -27,4 +27,14 @@ class TaskService
         return TaskData::fromTask($newTask);
 
     }
+
+    public function edit(array $data): TaskData
+    {
+        $task = Task::find($data['id']);
+        $task->title = $data['title'];
+        $task->description = $data['description'];
+        $task->save();
+
+        return TaskData::fromTask($task);
+    }
 }

@@ -2,7 +2,7 @@
 import { ref, computed, defineProps, onMounted } from "vue";
 import {router, usePage} from "@inertiajs/vue3";
 import {Tasks} from "../types/tasks";
-import {getTasks, createTaskService} from "../../services/tasks";
+import {getTasks, createTaskService, editTaskService} from "../../services/tasks";
 
 const props = defineProps({
     tasks: {
@@ -13,13 +13,15 @@ const props = defineProps({
 const tasks = ref([]);
 
 const showModal = ref(false);
-const newTask = ref({ title: "", description: "", status: "Pendente" });
+const newTask = ref({ title: "", description: ""});
+const isEditing = ref<boolean>(false);
+const editingTask = ref({id: null, title: "", description: ""})
 const filter = ref({ title: "", description: "", status: "" });
 const sortKey = ref("title");
 const sortOrder = ref("asc");
 
 const openModal = () => {
-    newTask.value = { title: "", description: "", status: "Pendente" };
+    newTask.value = { title: "", description: "" };
     showModal.value = true;
 };
 
@@ -29,20 +31,39 @@ onMounted(async () => {
 })
 
 const closeModal = () => {
+    editingTask.value = {id: null, title: "", description: ""};
+    newTask.value = { title: "", description: ""};
+    isEditing.value = false;
     showModal.value = false;
 };
 
-const saveTask = async () => {
+const createTask = async () => {
     if (!newTask.value.title.trim() || !newTask.value.description.trim()) {
         return alert('Preencha os campos corretamente!')
     }
-
-    const response = await createTaskService({title: newTask.value.title, description: newTask.value.description})
-    console.log(response);
+    await createTaskService({title: newTask.value.title, description: newTask.value.description}).then((res) => {
+        closeModal();
+    })
+    tasks.value = (await getTasks(usePage().props.auth.user.id)).data
 };
 
-const editTask = (task) => {
-    newTask.value = { ...task };
+const updateTask = async () => {
+    if (!editingTask.value.title.trim() || !editingTask.value.description.trim()) {
+        return alert('Preencha os campos corretamente!')
+    }
+    await editTaskService({id: editingTask.value.id, title: editingTask.value.title, description:editingTask.value.description}).then((res) => {
+        closeModal();
+    })
+    tasks.value = (await getTasks(usePage().props.auth.user.id)).data
+}
+
+const submitModal = async () => {
+    return isEditing.value ? await updateTask() : await createTask();
+}
+
+const edit = (task) => {
+    isEditing.value = true;
+    editingTask.value = { ...task };
     showModal.value = true;
 };
 
@@ -160,7 +181,7 @@ const filteredTasks = computed(() => {
                         <div class="flex items-center h-full">
 
                             <button
-                                @click="editTask(task)"
+                                @click="edit(task)"
                                 class="bg-blue-600 text-white px-1 py-1 rounded hover:bg-blue-800 transition-colors mr-2"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -198,23 +219,42 @@ const filteredTasks = computed(() => {
         >
             <div class="bg-white p-6 rounded-lg shadow-lg w-96">
                 <h2 class="text-2xl font-bold mb-4">
-                    {{ newTask.id ? "Editar Tarefa" : "Nova Tarefa" }}
+                    {{ isEditing ? "Editar Tarefa" : "Nova Tarefa" }}
                 </h2>
-                <form @submit.prevent="saveTask">
-                    <div class="mb-4">
-                        <label class="block text-lg font-medium text-[#2f2c2c]">Título</label>
-                        <input
-                            v-model="newTask.title"
-                            type="text"
-                            class="w-full p-3 border border-[#697076] rounded-lg focus:outline-none"
-                        />
+                <form @submit.prevent="submitModal">
+                    <div v-if="isEditing">
+                        <div class="mb-4">
+                            <label class="block text-lg font-medium text-[#2f2c2c]">Título</label>
+                            <input
+                                v-model="editingTask.title"
+                                type="text"
+                                class="w-full p-3 border border-[#697076] rounded-lg focus:outline-none"
+                            />
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-lg font-medium text-[#2f2c2c]">Descrição</label>
+                            <textarea
+                                v-model="editingTask.description"
+                                class="w-full p-3 border border-[#697076] rounded-lg focus:outline-none"
+                            ></textarea>
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-lg font-medium text-[#2f2c2c]">Descrição</label>
-                        <textarea
-                            v-model="newTask.description"
-                            class="w-full p-3 border border-[#697076] rounded-lg focus:outline-none"
-                        ></textarea>
+                    <div v-else>
+                        <div class="mb-4">
+                            <label class="block text-lg font-medium text-[#2f2c2c]">Título</label>
+                            <input
+                                v-model="newTask.title"
+                                type="text"
+                                class="w-full p-3 border border-[#697076] rounded-lg focus:outline-none"
+                            />
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-lg font-medium text-[#2f2c2c]">Descrição</label>
+                            <textarea
+                                v-model="newTask.description"
+                                class="w-full p-3 border border-[#697076] rounded-lg focus:outline-none"
+                            ></textarea>
+                        </div>
                     </div>
                     <div class="flex justify-end gap-4">
                         <button
