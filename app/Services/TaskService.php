@@ -21,7 +21,7 @@ class TaskService
         $newTask->user_id = auth()->user()->id;
         $newTask->title = $data['title'];
         $newTask->description = $data['description'];
-        $newTask->status = TaskStatusEnum::PENDING;
+        $newTask->status = TaskStatusEnum::PENDING->value;
         $newTask->save();
 
         return TaskData::fromTask($newTask);
