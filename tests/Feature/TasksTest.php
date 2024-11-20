@@ -4,6 +4,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
 use App\Models\Task;
+use App\Enums\TaskStatusEnum;
 
 class TasksTest extends TestCase
 {
@@ -67,5 +68,23 @@ class TasksTest extends TestCase
             'description' => 'Nova descrição só para teste.',
         ]);
 
+    }
+
+    public function test_done_task(): void
+    {
+        $task = Task::factory()->for($this->user)->create();
+
+        $response = $this->post('/tasks/done', [
+            'id' => $task->id
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJson([
+            'message' => 'Tarefa concluída com sucesso!'
+        ]);
+        $this->assertDatabaseHas('tasks', [
+            'id' => $task->id,
+            'status' => TaskStatusEnum::DONE
+        ]);
     }
 }
