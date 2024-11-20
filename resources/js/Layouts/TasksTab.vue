@@ -3,6 +3,7 @@ import { ref, computed, defineProps, onMounted } from "vue";
 import {router, usePage} from "@inertiajs/vue3";
 import {Tasks} from "../types/tasks";
 import {getTasks, createTaskService, editTaskService, doneTaskService, deleteTaskService} from "../../services/tasks";
+import {getTasksService} from "../../services/admin";
 
 const props = defineProps({
     tasks: {
@@ -25,9 +26,28 @@ const openModal = () => {
     showModal.value = true;
 };
 
+const getUserTask = async () => {
+    await getTasks(usePage().props.auth.user.id).then((res) => {
+        tasks.value = res.data.tasks
+    })
+}
+
+const getAdminTask = async () => {
+    await getTasksService().then((res) => {
+        tasks.value = res.data.tasks
+    })
+}
+
+const resolveGetTasks = async () => {
+    if(usePage().props.auth.user.role === 'admin') {
+        await getAdminTask()
+    } else {
+        await getUserTask()
+    }
+}
+
 onMounted(async () => {
-    const response = await getTasks(usePage().props.auth.user.id)
-    tasks.value = response.data.tasks
+    await resolveGetTasks()
 })
 
 const closeModal = () => {
@@ -45,7 +65,7 @@ const createTask = async () => {
         closeModal();
         alert(res.data.message)
     })
-    tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
+    await resolveGetTasks()
 };
 
 const updateTask = async () => {
@@ -56,7 +76,7 @@ const updateTask = async () => {
         closeModal();
         alert(res.data.message)
     })
-    tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
+    await resolveGetTasks()
 }
 
 const submitModal = async () => {
@@ -74,7 +94,7 @@ const deleteTask = async (id) => {
         await deleteTaskService(id).then((res) => {
             alert(res.data.message);
         })
-        tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
+        await resolveGetTasks()
     }
 };
 
@@ -82,7 +102,7 @@ const done = async (task) => {
     await doneTaskService(task.id).then((res) => {
         alert(res.data.message);
     })
-    tasks.value = (await getTasks(usePage().props.auth.user.id)).data.tasks
+    await resolveGetTasks()
 };
 
 const filteredTasks = computed(() => {
@@ -157,7 +177,10 @@ const filteredTasks = computed(() => {
                         Status
                         <span v-if="sortKey === 'status'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
                     </th>
-                    <th class="p-4 border border-[#697076] text-center h-auto">
+                    <th v-if="usePage().props.auth.user.role === 'admin'" class="p-4 border border-[#697076] text-center h-auto">
+                        Usuário
+                    </th>
+                    <th v-if="usePage().props.auth.user.role === 'user'" class="p-4 border border-[#697076] text-center h-auto">
                         Ações
                     </th>
                 </tr>
@@ -176,7 +199,8 @@ const filteredTasks = computed(() => {
                     <td class="p-4 border border-[#697076]">{{ task.title }}</td>
                     <td class="p-4 border border-[#697076]">{{ task.description }}</td>
                     <td class="p-4 border border-[#697076]">{{ task.status }}</td>
-                    <td class="p-4 border border-[#697076]">
+                    <td v-if="usePage().props.auth.user.role === 'admin'" class="p-4 border border-[#697076]">{{ task.user_name }}</td>
+                    <td class="p-4 border border-[#697076]" v-if="usePage().props.auth.user.role === 'user'">
                         <div class="flex items-center h-full">
 
                             <button

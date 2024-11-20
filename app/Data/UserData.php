@@ -27,4 +27,11 @@ class UserData extends Data
             f_role: $user->f_role
         );
     }
+
+    public static function toCollection($users)
+    {
+        return $users->map(function (User $user) {
+            return self::from($user);
+        });
+    }
 }

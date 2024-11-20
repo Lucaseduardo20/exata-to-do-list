@@ -1,54 +1,40 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import {router} from "@inertiajs/vue3";
+import {deleteUserService, editUserService, getUsersService, promoteUserService} from "../../services/admin.ts";
 
-const users = ref([
-    { id: 1, name: "João Silva", email: "joao@empresa.com", status: "Ativo" },
-    { id: 2, name: "Maria Souza", email: "maria@empresa.com", status: "Inativo" },
-    { id: 3, name: "Carlos Almeida", email: "carlos@empresa.com", status: "Ativo" },
-]);
-
-const tasks = ref([
-    { id: 1, userId: 1, title: "Estudar Vue.js", status: "Pendente" },
-    { id: 2, userId: 2, title: "Criar backend", status: "Concluída" },
-    { id: 3, userId: 1, title: "Ajustar front-end", status: "Pendente" },
-]);
+const users = ref([]);
 
 const showModal = ref(false);
-const showTaskModal = ref(false);
 const currentUser = ref(null);
 const filter = ref({ name: "", email: "", status: "" });
 const sortKey = ref("name");
 const sortOrder = ref("asc");
 
-const openModal = () => {
-    currentUser.value = { id: null, name: "", email: "", status: "Ativo" };
-    showModal.value = true;
-};
+const getUsers = async () => {
+    await getUsersService().then((res) => {
+        users.value = res.data.users
+    })
+}
+
+onMounted(async () => {
+    await getUsers()
+})
 
 const closeModal = () => {
     showModal.value = false;
 };
 
-const saveUser = () => {
-    if (currentUser.value.name.trim() && currentUser.value.email.trim()) {
-        if (currentUser.value.id) {
-            router.put(`/users/${currentUser.value.id}`, currentUser.value, {
-                onSuccess: () => {
-                    const index = users.value.findIndex((user) => user.id === currentUser.value.id);
-                    users.value[index] = { ...currentUser.value };
-                    closeModal();
-                },
-            });
-        } else {
-            router.post("/users", currentUser.value, {
-                onSuccess: () => {
-                    users.value.push({ ...currentUser.value, id: users.value.length + 1 });
-                    closeModal();
-                },
-            });
-        }
-    }
+const saveUser = async () => {
+    await editUserService({
+        id: currentUser.value.id,
+        name: currentUser.value.name,
+        email: currentUser.value.email
+    }).then((res) => {
+        alert(res.data.message)
+    })
+    closeModal();
+    await getUsers();
 };
 
 const editUser = (user) => {
@@ -56,27 +42,32 @@ const editUser = (user) => {
     showModal.value = true;
 };
 
-const toggleStatus = (user) => {
-    const newStatus = user.status === "Ativo" ? "Inativo" : "Ativo";
-    router.put(`/users/${user.id}/status`, { ...user, status: newStatus }, {
-        onSuccess: () => {
-            user.status = newStatus;
-        },
-    });
+const deleteUser = async (user) => {
+    if (confirm("Tem certeza que deseja deletar este usuário?")) {
+        await deleteUserService(user.id).then((res) => {
+            alert(res.data.message);
+        })
+    }
+    await getUsers();
+
 };
 
-const viewTasks = (user) => {
-    const userTasks = tasks.value.filter((task) => task.userId === user.id);
-    alert(`Tarefas de ${user.name}: \n${userTasks.map((task) => task.title).join("\n")}`);
-};
+const promoteUser = async (user) => {
+    if (confirm("Tem certeza que deseja promover este usuário à Administrador?")) {
+        await promoteUserService(user.id).then((res) => {
+            alert(res.data.message);
+        })
+    }
+
+    await getUsers();
+}
 
 const filteredUsers = computed(() => {
     return users.value
         .filter((user) => {
             return (
                 (filter.value.name ? user.name.toLowerCase().includes(filter.value.name.toLowerCase()) : true) &&
-                (filter.value.email ? user.email.toLowerCase().includes(filter.value.email.toLowerCase()) : true) &&
-                (filter.value.status ? user.status.toLowerCase().includes(filter.value.status.toLowerCase()) : true)
+                (filter.value.email ? user.email.toLowerCase().includes(filter.value.email.toLowerCase()) : true)
             );
         })
         .sort((a, b) => {
@@ -93,12 +84,6 @@ const filteredUsers = computed(() => {
     <section class="p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-[#2f2c2c]">Gerenciador de Usuários</h1>
-            <button
-                @click="openModal"
-                class="bg-[#f9a01b] text-white px-6 py-3 rounded-lg hover:bg-[#e68a00] transition-colors"
-            >
-                Novo Usuário
-            </button>
         </div>
 
         <div class="mb-4 flex gap-4">
@@ -114,12 +99,6 @@ const filteredUsers = computed(() => {
                 placeholder="Filtrar por e-mail"
                 class="w-full p-3 border border-[#697076] rounded-lg"
             />
-            <input
-                v-model="filter.status"
-                type="text"
-                placeholder="Filtrar por status"
-                class="w-full p-3 border border-[#697076] rounded-lg"
-            />
         </div>
 
         <table class="w-full text-left border-collapse border border-[#697076]">
@@ -133,9 +112,8 @@ const filteredUsers = computed(() => {
                     E-mail
                     <span v-if="sortKey === 'email'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
                 </th>
-                <th @click="sortKey = 'status'; sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'" class="p-4 cursor-pointer border border-[#697076]">
-                    Status
-                    <span v-if="sortKey === 'status'" class="ml-2">{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                <th  class="p-4 cursor-pointer border border-[#697076]">
+                    Role
                 </th>
                 <th class="p-4 border border-[#697076] text-center">Ações</th>
             </tr>
@@ -148,25 +126,36 @@ const filteredUsers = computed(() => {
             >
                 <td class="p-4 border border-[#697076]">{{ user.name }}</td>
                 <td class="p-4 border border-[#697076]">{{ user.email }}</td>
-                <td class="p-4 border border-[#697076]">{{ user.status }}</td>
-                <td class="p-4 border border-[#697076] text-center">
+                <td class="p-4 border border-[#697076]">{{ user.f_role }}</td>
+                <td class="p-4 border border-[#697076] text-center flex justify-center gap-1">
                     <button
                         @click="editUser(user)"
-                        class="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-800 transition-colors mr-2"
+                        class="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-800 transition-colors"
                     >
-                        Editar
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                        </svg>
+
                     </button>
+
                     <button
-                        @click="toggleStatus(user)"
-                        class="bg-green-600 text-white px-3 py-2 rounded hover:bg-green-800 transition-colors mr-2"
+                        @click="deleteUser(user)"
+                        class="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-800 transition-colors"
                     >
-                        {{ user.status === "Ativo" ? "Inativar" : "Ativar" }}
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+
                     </button>
-                    <button
-                        @click="viewTasks(user)"
-                        class="bg-yellow-600 text-white px-3 py-2 rounded hover:bg-yellow-800 transition-colors"
+                    <button v-if="user.role === 'user'"
+                        @click="promoteUser(user)"
+                        class="bg-green-600 text-white  px-3 py-2 rounded hover:bg-green-800 transition-colors"
                     >
-                        Tarefas
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5" />
+                        </svg>
+
                     </button>
                 </td>
             </tr>

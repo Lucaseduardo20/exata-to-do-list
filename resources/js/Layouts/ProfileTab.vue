@@ -26,12 +26,6 @@ function handleLogout() {
         </div>
 
         <footer class="actions flex gap-4">
-            <button v-if="user.role === 'admin'"
-                @click="handleEditProfile"
-                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-                Editar Perfil
-            </button>
             <button
                 @click="handleLogout"
                 class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"

@@ -44,7 +44,7 @@ class TaskService
         $task->status = TaskStatusEnum::DONE->value;
         $task->save();
 
-        return TaskData::toRequest($task);
+        return TaskData::fromTask($task);
     }
 
     public function deleteTask(int $task_id): void

@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AuthController;
 use Inertia\Inertia;
 use App\Http\Controllers\TasksController;
+use App\Http\Middleware\EnsureAdmin;
+use App\Http\AdminController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -35,3 +37,12 @@ Route::prefix('tasks')->middleware('auth')->group(function () {
     Route::post('/done', [TasksController::class, 'doneTask'])->name('done');
     Route::post('/delete', [TasksController::class, 'deleteTask'])->name('delete');
 });
+
+Route::prefix('admin')->group(function () {
+    Route::get('/tasks', [AdminController::class, 'listTasks'])->name('list');
+    Route::get('/users', [AdminController::class, 'listUsers'])->name('list');
+    Route::post('/update_user', [AdminController::class, 'updateUser'])->name('update-user');
+    Route::post('/delete_user', [AdminController::class, 'deleteUser'])->name('delete-user');
+    Route::post('/promote_user', [AdminController::class, 'promoteUser'])->name('promote-user');
+
+})->middleware(EnsureAdmin::class);
